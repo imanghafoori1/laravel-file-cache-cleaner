@@ -61,11 +61,8 @@ class CachePurgeCommand extends Command
                     $path = $cacheFile->getPath();
                     $deletedFile = $filesystem->delete($cacheFile->getPathname());
 
-                    if ($deletedFile && count($filesystem->files($path)) === 0) {
-                        $deleted = $filesystem->deleteDirectory($path);
-                    }
-
-                    if (isset($deleted) && count($filesystem->files(dirname($path))) === 0) {
+                    // deletes the parent directory
+                    if ($deletedFile && $this->files(dirname($path)) === 0) {
                         $filesystem->deleteDirectory(dirname($path));
                     }
                 }
@@ -75,5 +72,10 @@ class CachePurgeCommand extends Command
         }
 
         $this->info('Your Filesystem cache successfully purged!');
+    }
+
+    public function files($directory)
+    {
+        return Finder::create()->files()->ignoreDotFiles(true)->in($directory)->depth(1)->sortByName()->count();
     }
 }
