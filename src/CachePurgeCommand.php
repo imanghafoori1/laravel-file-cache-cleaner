@@ -14,7 +14,7 @@ class CachePurgeCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'cache:clean_files';
+    protected $signature = 'cache:clean_files {store? : The name of the store}';
 
     /**
      * The name of the console command.
@@ -40,38 +40,41 @@ class CachePurgeCommand extends Command
     public function handle(Filesystem $filesystem)
     {
         $config = config('cache');
-        $store = $config['default'];
+        $store = $this->argument('store') ?: $config['default'];
+
+        if (! isset($config['stores'][$store])) {
+            $this->warn('The storage: "'.$store.'" does not exists in config file.');
+
+            return;
+        }
 
         $storeConfigs = $config['stores'][$store] ?? [];
 
         if (($storeConfigs['driver'] ?? '') !== 'file') {
-            $this->info('Your store driver is not set to the "file" driver!');
+            $this->warn('Your store driver is not set to the "file" driver!');
 
             return;
         }
 
         $cacheFiles = Finder::create()->in($storeConfigs['path'])->files();
-
+        $size = $count = 0;
         try {
             foreach ($cacheFiles as $cacheFile) {
-                $contents = $cacheFile->getContents();
-                $expire = substr($contents, 0, 10);
+                $expire = (int) file_get_contents($cacheFile->getPathname(), false, null, 0, 10);
 
                 if (Carbon::now()->getTimestamp() >= $expire) {
-                    $path = $cacheFile->getPath();
-                    $deletedFile = $filesystem->delete($cacheFile->getPathname());
-
-                    // deletes the parent directory
-                    if ($deletedFile && $this->files(dirname($path)) === 0) {
-                        $filesystem->deleteDirectory(dirname($path));
-                    }
+                    $size += $cacheFile->getSize() / 1000;
+                    $filesystem->delete($cacheFile->getPathname()) && $count++;
                 }
             }
+        } catch (\ErrorException $e) {
+            //
         } catch (\RuntimeException $e) {
             //
         }
 
-        $this->info('Your Filesystem cache successfully purged!');
+        $this->info('- Your filesystem cache successfully purged!');
+        $this->info('- '.$count. ' files ('.$size.' kb) where deleted. \(^_^)/');
     }
 
     public function files($directory)
