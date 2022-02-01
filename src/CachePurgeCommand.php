@@ -61,7 +61,11 @@ class CachePurgeCommand extends Command
                 $filesystem->delete($cacheFile->getPathname());
 
                 if (count($filesystem->files($path)) === 0) {
-                    $filesystem->deleteDirectory($path);
+                    $deleted = $filesystem->deleteDirectory($path);
+                }
+
+                if (isset($deleted) && count($filesystem->files(dirname($path))) === 0) {
+                    $filesystem->deleteDirectory(dirname($path));
                 }
             }
         }
