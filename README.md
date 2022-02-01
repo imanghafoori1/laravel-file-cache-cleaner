@@ -37,7 +37,7 @@ Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
 ## Credits
 
-- [Iman Ghafoori](https://github.com/imanghafoori)
+- [Iman Ghafoori](https://github.com/imanghafoori1)
 - [All Contributors](../../contributors)
 
 ## License
