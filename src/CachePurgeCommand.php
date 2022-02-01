@@ -58,6 +58,7 @@ class CachePurgeCommand extends Command
 
         $cacheFiles = Finder::create()->in($storeConfigs['path'])->files();
         $size = $count = 0;
+
         try {
             foreach ($cacheFiles as $cacheFile) {
                 $expire = (int) file_get_contents($cacheFile->getPathname(), false, null, 0, 10);
