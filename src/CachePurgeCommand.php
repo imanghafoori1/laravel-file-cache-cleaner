@@ -59,9 +59,9 @@ class CachePurgeCommand extends Command
 
                 if (Carbon::now()->getTimestamp() >= $expire) {
                     $path = $cacheFile->getPath();
-                    $filesystem->delete($cacheFile->getPathname());
+                    $deletedFile = $filesystem->delete($cacheFile->getPathname());
 
-                    if (count($filesystem->files($path)) === 0) {
+                    if ($deletedFile && count($filesystem->files($path)) === 0) {
                         $deleted = $filesystem->deleteDirectory($path);
                     }
 
@@ -73,6 +73,7 @@ class CachePurgeCommand extends Command
         } catch (\RuntimeException $e) {
             //
         }
+
         $this->info('Your Filesystem cache successfully purged!');
     }
 }
