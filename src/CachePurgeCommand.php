@@ -52,24 +52,27 @@ class CachePurgeCommand extends Command
 
         $cacheFiles = Finder::create()->in($storeConfigs['path'])->files();
 
-        foreach ($cacheFiles as $cacheFile) {
-            $contents = $cacheFile->getContents();
-            $expire = substr($contents, 0, 10);
+        try {
+            foreach ($cacheFiles as $cacheFile) {
+                $contents = $cacheFile->getContents();
+                $expire = substr($contents, 0, 10);
 
-            if (Carbon::now()->getTimestamp() >= $expire) {
-                $path = $cacheFile->getPath();
-                $filesystem->delete($cacheFile->getPathname());
+                if (Carbon::now()->getTimestamp() >= $expire) {
+                    $path = $cacheFile->getPath();
+                    $filesystem->delete($cacheFile->getPathname());
 
-                if (count($filesystem->files($path)) === 0) {
-                    $deleted = $filesystem->deleteDirectory($path);
-                }
+                    if (count($filesystem->files($path)) === 0) {
+                        $deleted = $filesystem->deleteDirectory($path);
+                    }
 
-                if (isset($deleted) && count($filesystem->files(dirname($path))) === 0) {
-                    $filesystem->deleteDirectory(dirname($path));
+                    if (isset($deleted) && count($filesystem->files(dirname($path))) === 0) {
+                        $filesystem->deleteDirectory(dirname($path));
+                    }
                 }
             }
+        } catch (\RuntimeException $e) {
+            //
         }
-
         $this->info('Your Filesystem cache successfully purged!');
     }
 }
