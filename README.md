@@ -1,9 +1,6 @@
 # Laravel File Cache Cleaner
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/imanghafoori/laravel-file-cache-cleaner.svg?style=flat-square)](https://packagist.org/packages/imanghafoori/laravel-file-cache-cleaner)
-[![Tests](https://github.com/imanghafoori/laravel-file-cache-cleaner/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/imanghafoori/laravel-file-cache-cleaner/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/imanghafoori/laravel-file-cache-cleaner.svg?style=flat-square)](https://packagist.org/packages/imanghafoori/laravel-file-cache-cleaner)
-<!--delete-->
 ---
 This is a command which lets you delete the expired cached data on the file system and free up the disk space.
 
@@ -18,8 +15,15 @@ composer require imanghafoori/laravel-file-cache-cleaner
 ## Usage
 
 ```php
+// default store:
 php artisan cache:clean_files
+
+// or custom store:
+php artisan cache:clean_files my_store
 ```
+
+![image](https://user-images.githubusercontent.com/6961695/152064458-7ee06ddb-cd3f-4a50-a853-342b4fd1ced4.png)
+
 
 ## Testing
 
