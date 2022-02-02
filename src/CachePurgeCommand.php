@@ -58,12 +58,23 @@ class CachePurgeCommand extends Command
 
         $cacheFiles = Finder::create()->in($storeConfigs['path'])->files();
         $size = $count = 0;
+        $now = Carbon::now()->getTimestamp();
 
         try {
             foreach ($cacheFiles as $cacheFile) {
-                $expire = (int) file_get_contents($cacheFile->getPathname(), false, null, 0, 10);
+                // For more safety, to prevent accidental deletion of other files
+                // we check the length of the file names to be 40 chars long.
+                if (strlen($cacheFile->getFilename()) !== 40) {
+                    continue;
+                }
 
-                if (Carbon::now()->getTimestamp() >= $expire) {
+                $expire = file_get_contents($cacheFile->getPathname(), false, null, 0, 10);
+
+                if (! is_numeric($expire)) {
+                    continue;
+                }
+
+                if ($now >= (int) $expire) {
                     $size += $cacheFile->getSize() / 1000;
                     $filesystem->delete($cacheFile->getPathname()) && $count++;
                 }
